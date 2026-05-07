@@ -34,7 +34,7 @@ export function AddToCartButton({
           quantity: 1,
         })
       }
-      className="bg-black text-white px-6 py-3 rounded-lg mt-6"
+      className="bg-black text-white px-6 py-3 rounded-lg mt-6 cursor-pointer"
     >
       Add to cart
     </button>

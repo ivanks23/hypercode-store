@@ -1,17 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useCartStore } from "@/store/cart.store";
 import { useMounted } from "@/hooks/useMounted";
 
 export default function CartPage() {
+  const mounted = useMounted();
+
   const items = useCartStore(
     (state) => state.items
   );
-  const mounted = useMounted();
-
-  if (!mounted) {
-    return null;
-  }
 
   const subtotal = useCartStore(
     (state) => state.subtotal
@@ -20,6 +18,10 @@ export default function CartPage() {
   const removeItem = useCartStore(
     (state) => state.removeItem
   );
+
+  if (!mounted) {
+    return null;
+  }
 
   if (items.length === 0) {
     return (
@@ -81,6 +83,13 @@ export default function CartPage() {
         <p className="text-2xl font-bold">
           Total: ${subtotal()}
         </p>
+
+        <Link
+          href="/checkout"
+          className="inline-block mt-6 bg-black text-white px-6 py-3 rounded-lg"
+        >
+          Continue to checkout
+        </Link>
       </div>
     </main>
   );
