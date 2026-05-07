@@ -3,11 +3,13 @@ import { prisma } from "@/lib/prisma";
 type GetProductsParams = {
   category?: string;
   search?: string;
+  sort?: string;
 };
 
 export async function getProducts({
   category,
   search,
+  sort,
 }: GetProductsParams) {
   return prisma.product.findMany({
     where: {
@@ -43,9 +45,13 @@ export async function getProducts({
       variants: true,
     },
 
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: 
+      sort === "price_asc" 
+      ? { 
+        variants: { 
+          _count: "desc", },
+         }
+      : { createdAt: "desc", },
   });
 }
 

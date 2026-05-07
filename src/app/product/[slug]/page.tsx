@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { getProductBySlug } from "@/services/product.service";
 
 type Props = {
@@ -44,6 +44,17 @@ export default async function ProductPage({
           <p className="text-3xl font-bold mt-6">
             ${product.variants[0].price}
           </p>
+
+          <AddToCartButton
+            item={{
+              variantId: product.variants[0].id,
+              productSlug: product.slug,
+              productName: product.name,
+              variantName: product.variants[0].name,
+              imageUrl: product.variants[0].imageUrl,
+              price: product.variants[0].price,
+            }}
+          />
         </div>
       </div>
     </main>
