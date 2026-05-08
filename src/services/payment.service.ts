@@ -16,27 +16,43 @@ type CreatePreferenceInput = {
   }[];
 };
 
+import { Payment } from "mercadopago";
+
+export async function getPaymentInfo(
+  paymentId: string
+) {
+  const paymentClient =
+    new Payment(mercadopago);
+
+  return paymentClient.get({
+    id: paymentId,
+  });
+}
+
 export async function createPreference({
   orderId,
   items,
 }: CreatePreferenceInput) {
   const preference = new Preference(mercadopago);
+  
+  const response =
+    await preference.create({
+      body: {
+        items,
 
-  const response = await preference.create({
-    body: {
-      items,
+        external_reference:
+          orderId,
 
-      external_reference: orderId,
+        back_urls: {
+          success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
 
-      back_urls: {
-        success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
+          failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure`,
+        },
 
-        failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure`,
+        auto_return: "approved",
       },
+    });
 
-      
-    },
-  });
 
   return response.init_point!;
 }

@@ -1,9 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-
 import { persist } from "zustand/middleware";
-
 import { CartItem } from "@/types/cart";
 
 type CartStore = {
@@ -19,9 +17,7 @@ type CartStore = {
   ) => void;
 
   clearCart: () => void;
-
   totalItems: () => number;
-
   subtotal: () => number;
 };
 
