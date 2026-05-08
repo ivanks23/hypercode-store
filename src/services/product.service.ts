@@ -1,69 +1,92 @@
 import { prisma } from "@/lib/prisma";
 
-type GetProductsParams = {
+type GetProductsInput = {
+  query?: string;
+
   category?: string;
-  search?: string;
+
   sort?: string;
 };
 
 export async function getProducts({
+  query,
   category,
-  search,
   sort,
-}: GetProductsParams) {
-  return prisma.product.findMany({
-    where: {
-      active: true,
+}: GetProductsInput = {}) {
+  const products =
+    await prisma.product.findMany({
+      where: {
+        active: true,
 
-      ...(category && {
-        category: {
-          slug: category,
-        },
-      }),
+        ...(query && {
+          OR: [
+            {
+              name: {
+                contains: query,
 
-      ...(search && {
-        OR: [
-          {
-            name: {
-              contains: search,
-              mode: "insensitive",
+                mode: "insensitive",
+              },
             },
-          },
 
-          {
-            brand: {
-              contains: search,
-              mode: "insensitive",
+            {
+              brand: {
+                contains: query,
+
+                mode: "insensitive",
+              },
             },
+          ],
+        }),
+
+        ...(category && {
+          category: {
+            slug: category,
           },
-        ],
-      }),
-    },
+        }),
+      },
 
-    include: {
-      category: true,
-      variants: true,
-    },
+      include: {
+        variants: true,
 
-    orderBy: 
-      sort === "price_asc" 
-      ? { 
-        variants: { 
-          _count: "desc", },
-         }
-      : { createdAt: "desc", },
-  });
+        category: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+  if (sort === "price_asc") {
+    products.sort(
+      (a, b) =>
+        a.variants[0].price -
+        b.variants[0].price
+    );
+  }
+
+  if (sort === "price_desc") {
+    products.sort(
+      (a, b) =>
+        b.variants[0].price -
+        a.variants[0].price
+    );
+  }
+
+  return products;
 }
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(
+  slug: string
+) {
   return prisma.product.findUnique({
     where: {
       slug,
     },
 
     include: {
-      category: true,
       variants: true,
+
+      category: true,
     },
   });
 }

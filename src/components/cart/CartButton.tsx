@@ -1,30 +1,39 @@
 "use client";
 
 import Link from "next/link";
-
+import { ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart.store";
 
-import { useMounted } from "@/hooks/useMounted";
-
 export function CartButton() {
-  const mounted = useMounted();
+  const items =
+    useCartStore(
+      (state) => state.items
+    );
 
-  const totalItems = useCartStore(
-    (state) => state.totalItems()
-  );
+  const totalItems =
+    items.reduce(
+      (acc, item) =>
+        acc + item.quantity,
+      0
+    );
 
   return (
-    <Link
-      href="/cart"
-      className="relative cursor-pointer"
+    <Button
+      asChild
+      variant="outline"
+      size="icon"
+      className="relative"
     >
-      Cart
+      <Link href="/cart">
+        <ShoppingCart className="h-5 w-5" />
 
-      {mounted && (
-        <span className="absolute -top-3 -right-5 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-          {totalItems}
-        </span>
-      )}
-    </Link>
+        {totalItems > 0 && (
+          <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs text-white">
+            {totalItems}
+          </span>
+        )}
+      </Link>
+    </Button>
   );
 }
