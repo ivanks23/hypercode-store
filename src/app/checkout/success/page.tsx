@@ -1,79 +1,42 @@
+import Link from "next/link";
 
-import { notFound } from "next/navigation";
-import { getPaymentInfo } from "@/services/payment.service";
-import { confirmPayment } from "@/services/payment-confirmation.service";
-import { ClearCart } from "@/components/checkout/ClearCart";
+import {
+  CheckCircle2,
+} from "lucide-react";
 
-type Props = {
-  searchParams: Promise<{
-    payment_id?: string;
-  }>;
-};
-
-export default async function CheckoutSuccessPage({
-  searchParams,
-}: Props) {
-  const params =
-    await searchParams;
-
-  if (!params.payment_id) {
-    notFound();
-  }
-
-  const payment =
-    await getPaymentInfo(
-      params.payment_id
-    );
-
-  if (
-    payment.status !==
-    "approved"
-  ) {
-    return (
-      <main className="container mx-auto p-8">
-        <h1 className="text-4xl font-bold">
-          Payment pending
-        </h1>
-      </main>
-    );
-  }
-
-  const orderId =
-    payment.external_reference;
-
-  if (!orderId) {
-    notFound();
-  }
-
-  await confirmPayment({
-    orderId,
-
-    paymentId:
-      payment.id!.toString(),
-
-    amount:
-      payment.transaction_amount!,
-
-    provider:
-      "MERCADOPAGO",
-  });
-
+export default function SuccessPage() {
   return (
-    <main className="container mx-auto p-8 text-center">
-      <ClearCart />
-      <h1 className="text-5xl font-bold text-green-600">
-        Payment successful
-      </h1>
+    <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-6 py-16">
+      <div className="max-w-xl rounded-[32px] border bg-white p-12 text-center shadow-sm">
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 className="h-12 w-12 text-green-600" />
+        </div>
 
-      <p className="mt-6 text-lg text-gray-600">
-        Your order has been confirmed.
-      </p>
+        <h1 className="mt-8 text-5xl font-black tracking-tight">
+          Payment approved
+        </h1>
 
-      <p className="mt-4">
-        Order ID:
-        {" "}
-        {orderId}
-      </p>
+        <p className="mt-4 text-lg text-muted-foreground">
+          Your order has been received
+          successfully.
+        </p>
+
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <Link
+            href="/products"
+            className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
+          >
+            Continue shopping
+          </Link>
+
+          <Link
+            href="/"
+            className="rounded-2xl border px-6 py-3 font-semibold transition hover:bg-muted"
+          >
+            Back home
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

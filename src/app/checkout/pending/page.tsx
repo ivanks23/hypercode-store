@@ -1,39 +1,31 @@
 import Link from "next/link";
 
 import {
-  XCircle,
+  Clock3,
 } from "lucide-react";
 
-export default function FailurePage() {
+export default function PendingPage() {
   return (
     <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-6 py-16">
       <div className="max-w-xl rounded-[32px] border bg-white p-12 text-center shadow-sm">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-red-100">
-          <XCircle className="h-12 w-12 text-red-600" />
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-yellow-100">
+          <Clock3 className="h-12 w-12 text-yellow-600" />
         </div>
 
         <h1 className="mt-8 text-5xl font-black tracking-tight">
-          Payment failed
+          Payment pending
         </h1>
 
         <p className="mt-4 text-lg text-muted-foreground">
-          Your payment could not be
-          completed.
+          Your payment is being reviewed.
         </p>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
+        <div className="mt-10">
           <Link
-            href="/checkout"
+            href="/"
             className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
           >
-            Try again
-          </Link>
-
-          <Link
-            href="/cart"
-            className="rounded-2xl border px-6 py-3 font-semibold transition hover:bg-muted"
-          >
-            Back to cart
+            Back home
           </Link>
         </div>
       </div>

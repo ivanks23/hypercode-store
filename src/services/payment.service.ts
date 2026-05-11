@@ -1,5 +1,4 @@
 import { Preference } from "mercadopago";
-
 import { mercadopago } from "@/lib/mercadopago";
 
 type CreatePreferenceInput = {
@@ -45,8 +44,8 @@ export async function createPreference({
 
         back_urls: {
           success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
-
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure`,
+          pending: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/pending`,
         },
 
         auto_return: "approved",

@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+
 import { useCartStore } from "@/store/cart.store";
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
     imageUrl: string;
 
     price: number;
+
+    quantity: number;
   };
 };
 
@@ -27,21 +30,24 @@ export function AddToCartButton({
       (state) => state.addItem
     );
 
-  const handleAddToCart = () => {
-    addItem({
-      ...item,
-      quantity: 1,
-    });
-
-    toast.success(
-      `${item.productName} added to cart`
+  const openCart =
+    useCartStore(
+      (state) =>
+        state.openCart
     );
-  };
 
   return (
     <button
-      onClick={handleAddToCart}
-      className="mt-6 cursor-pointer rounded-lg bg-black px-6 py-3 text-white transition hover:opacity-90"
+      onClick={() => {
+        addItem(item);
+
+        openCart();
+
+        toast.success(
+          `${item.quantity} item(s) added to cart`
+        );
+      }}
+      className="rounded-2xl bg-violet-600 px-8 py-4 font-semibold text-white transition hover:bg-violet-700"
     >
       Add to cart
     </button>

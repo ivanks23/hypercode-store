@@ -1,9 +1,7 @@
 "use server";
 
 import { checkoutSchema } from "@/schemas/checkout.schema";
-
 import { createPreference } from "@/services/payment.service";
-
 import { createOrder } from "@/services/order.service";
 
 type Payload = {
