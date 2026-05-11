@@ -1,39 +1,38 @@
 "use client";
 
-import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
 import { useCartStore } from "@/store/cart.store";
 
 export function CartButton() {
-  const items =
+  const totalItems =
     useCartStore(
-      (state) => state.items
+      (state) =>
+        state.totalItems()
     );
 
-  const totalItems =
-    items.reduce(
-      (acc, item) =>
-        acc + item.quantity,
-      0
+  const openCart =
+    useCartStore(
+      (state) =>
+        state.openCart
     );
 
   return (
     <Button
-      asChild
       variant="outline"
       size="icon"
-      className="relative"
+      className="relative rounded-full"
+      onClick={openCart}
     >
-      <Link href="/cart">
-        <ShoppingCart className="h-5 w-5" />
+      <ShoppingCart className="h-5 w-5" />
 
-        {totalItems > 0 && (
-          <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs text-white">
-            {totalItems}
-          </span>
-        )}
-      </Link>
+      {totalItems > 0 && (
+        <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
+          {totalItems}
+        </span>
+      )}
     </Button>
   );
 }

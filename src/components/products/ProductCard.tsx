@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   product: {
@@ -27,29 +29,56 @@ export function ProductCard({
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="group rounded-2xl border bg-white p-4 transition hover:-translate-y-1 hover:shadow-lg"
+      className="group overflow-hidden rounded-3xl border bg-white/70 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
     >
-      <div className="overflow-hidden rounded-xl">
-        <img
-          src={variant?.imageUrl}
-          alt={product.name}
-          className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-        />
+      <div className="relative overflow-hidden">
+        {/* BADGE */}
+
+        <div className="absolute left-4 top-4 z-10 rounded-full border bg-white/80 px-3 py-1 text-xs font-medium backdrop-blur">
+          Featured
+        </div>
+
+        {/* IMAGE */}
+
+        <div className="aspect-square overflow-hidden bg-muted">
+          <img
+            src={variant?.imageUrl}
+            alt={product.name}
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        </div>
       </div>
 
-      <div className="mt-4">
-        <p className="text-sm text-gray-500">
+      {/* CONTENT */}
+
+      <div className="p-5">
+        <p className="text-sm font-medium text-violet-600">
           {product.brand}
         </p>
 
-        <h2 className="mt-1 line-clamp-2 text-lg font-semibold">
+        <h2 className="mt-2 line-clamp-2 text-xl font-bold tracking-tight">
           {product.name}
         </h2>
 
-        <p className="mt-4 text-2xl font-bold">
-          $
-          {variant?.price}
-        </p>
+        <div className="mt-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Starting at
+            </p>
+
+            <p className="text-3xl font-black tracking-tight">
+              $
+              {variant?.price}
+            </p>
+          </div>
+
+          <Button
+            size="icon"
+            className="rounded-full"
+          >
+            <ShoppingCart className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </Link>
   );

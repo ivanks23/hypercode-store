@@ -1,15 +1,29 @@
 "use client";
 
 import { create } from "zustand";
+
 import { persist } from "zustand/middleware";
+
 import { CartItem } from "@/types/cart";
 
 type CartStore = {
   items: CartItem[];
 
-  addItem: (item: CartItem) => void;
+  isOpen: boolean;
 
-  removeItem: (variantId: string) => void;
+  openCart: () => void;
+
+  closeCart: () => void;
+
+  toggleCart: () => void;
+
+  addItem: (
+    item: CartItem
+  ) => void;
+
+  removeItem: (
+    variantId: string
+  ) => void;
 
   updateQuantity: (
     variantId: string,
@@ -17,7 +31,9 @@ type CartStore = {
   ) => void;
 
   clearCart: () => void;
+
   totalItems: () => number;
+
   subtotal: () => number;
 };
 
@@ -27,39 +43,73 @@ export const useCartStore =
       (set, get) => ({
         items: [],
 
-        addItem: (item) => {
-          const items = get().items;
+        isOpen: false,
 
-          const existingItem = items.find(
-            (i) =>
-              i.variantId === item.variantId
-          );
+        openCart: () =>
+          set({
+            isOpen: true,
+          }),
+
+        closeCart: () =>
+          set({
+            isOpen: false,
+          }),
+
+        toggleCart: () =>
+          set({
+            isOpen:
+              !get().isOpen,
+          }),
+
+        addItem: (item) => {
+          const items =
+            get().items;
+
+          const existingItem =
+            items.find(
+              (i) =>
+                i.variantId ===
+                item.variantId
+            );
 
           if (existingItem) {
-            return set({
-              items: items.map((i) =>
-                i.variantId === item.variantId
-                  ? {
-                      ...i,
-                      quantity:
-                        i.quantity + item.quantity,
-                    }
-                  : i
+            set({
+              items: items.map(
+                (i) =>
+                  i.variantId ===
+                  item.variantId
+                    ? {
+                        ...i,
+
+                        quantity:
+                          i.quantity +
+                          item.quantity,
+                      }
+                    : i
               ),
+            });
+          } else {
+            set({
+              items: [
+                ...items,
+                item,
+              ],
             });
           }
 
-          set({
-            items: [...items, item],
-          });
+          get().openCart();
         },
 
-        removeItem: (variantId) => {
+        removeItem: (
+          variantId
+        ) => {
           set({
-            items: get().items.filter(
-              (item) =>
-                item.variantId !== variantId
-            ),
+            items:
+              get().items.filter(
+                (item) =>
+                  item.variantId !==
+                  variantId
+              ),
           });
         },
 
@@ -67,21 +117,26 @@ export const useCartStore =
           variantId,
           quantity
         ) => {
-          if (quantity <= 0) {
+          if (
+            quantity <= 0
+          ) {
             return get().removeItem(
               variantId
             );
           }
 
           set({
-            items: get().items.map((item) =>
-              item.variantId === variantId
-                ? {
-                    ...item,
-                    quantity,
-                  }
-                : item
-            ),
+            items:
+              get().items.map(
+                (item) =>
+                  item.variantId ===
+                  variantId
+                    ? {
+                        ...item,
+                        quantity,
+                      }
+                    : item
+              ),
           });
         },
 
@@ -93,24 +148,33 @@ export const useCartStore =
 
         totalItems: () => {
           return get().items.reduce(
-            (acc, item) =>
-              acc + item.quantity,
+            (
+              acc,
+              item
+            ) =>
+              acc +
+              item.quantity,
             0
           );
         },
 
         subtotal: () => {
           return get().items.reduce(
-            (acc, item) =>
+            (
+              acc,
+              item
+            ) =>
               acc +
-              item.price * item.quantity,
+              item.price *
+                item.quantity,
             0
           );
         },
       }),
 
       {
-        name: "cart-storage",
+        name:
+          "cart-storage",
       }
     )
   );

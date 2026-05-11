@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -17,9 +18,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-background text-foreground antialiased">
         <Navbar />
+
         {children}
+
+        <CartDrawer />
+
         <Toaster richColors />
       </body>
     </html>
