@@ -13,71 +13,60 @@ export async function getProducts({
   category,
   sort,
 }: GetProductsInput = {}) {
-  const products =
-    await prisma.product.findMany({
-      where: {
-        active: true,
+  const products = await prisma.product.findMany({
+    where: {
+      active: true,
 
-        ...(query && {
-          OR: [
-            {
-              name: {
-                contains: query,
+      ...(query && {
+        OR: [
+          {
+            name: {
+              contains: query,
 
-                mode: "insensitive",
-              },
+              mode: "insensitive" as const,
             },
-
-            {
-              brand: {
-                contains: query,
-
-                mode: "insensitive",
-              },
-            },
-          ],
-        }),
-
-        ...(category && {
-          category: {
-            slug: category,
           },
-        }),
-      },
 
-      include: {
-        variants: true,
+          {
+            brand: {
+              contains: query,
 
-        category: true,
-      },
+              mode: "insensitive" as const,
+            },
+          },
+        ],
+      }),
 
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+      ...(category && {
+        category: {
+          slug: category,
+        },
+      }),
+    },
+
+    include: {
+      variants: true,
+
+      category: true,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   if (sort === "price_asc") {
-    products.sort(
-      (a, b) =>
-        a.variants[0].price -
-        b.variants[0].price
-    );
+    products.sort((a, b) => a.variants[0].price - b.variants[0].price);
   }
 
   if (sort === "price_desc") {
-    products.sort(
-      (a, b) =>
-        b.variants[0].price -
-        a.variants[0].price
-    );
+    products.sort((a, b) => b.variants[0].price - a.variants[0].price);
   }
 
   return products;
 }
 
-export async function getProductBySlug(
-  slug: string
-) {
+export async function getProductBySlug(slug: string) {
   return prisma.product.findUnique({
     where: {
       slug,
@@ -91,23 +80,103 @@ export async function getProductBySlug(
   });
 }
 
-export async function getAdminProducts() {
-  return prisma.product.findMany({
-    include: {
-      category: true,
+type AdminProductsInput = {
+  query?: string;
 
-      variants: true,
-    },
+  page?: number;
+};
 
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+export async function getAdminProducts({
+  query,
+  page = 1,
+}: AdminProductsInput) {
+  const limit = 10;
+
+  const skip = (page - 1) * limit;
+
+  const where = query
+    ? {
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+
+          {
+            brand: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+
+          {
+            slug: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+
+          {
+            category: {
+              name: {
+                contains: query,
+                mode: "insensitive" as const,
+              },
+            },
+          },
+
+          {
+            variants: {
+              some: {
+                sku: {
+                  contains: query,
+                  mode: "insensitive" as const,
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  const [products, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+
+      include: {
+        category: true,
+
+        variants: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      take: limit,
+
+      skip,
+    }),
+
+    prisma.product.count({
+      where,
+    }),
+  ]);
+
+  return {
+    products,
+
+    total,
+
+    totalPages: Math.ceil(total / limit),
+
+    currentPage: page,
+  };
 }
 
-export async function getAdminProductById(
-  id: string
-) {
+export async function getAdminProductById(id: string) {
   return prisma.product.findUnique({
     where: {
       id,
