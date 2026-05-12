@@ -1,16 +1,11 @@
 import Link from "next/link";
 
-import {
-  Eye,
-  Package,
-  Pencil,
-} from "lucide-react";
+import { Eye, Package, Pencil } from "lucide-react";
 
 import { getAdminProducts } from "@/services/product.service";
 
 export default async function AdminProductsPage() {
-  const products =
-    await getAdminProducts();
+  const products = await getAdminProducts();
 
   return (
     <div>
@@ -18,9 +13,7 @@ export default async function AdminProductsPage() {
 
       <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-5xl font-black tracking-tight">
-            Products
-          </h1>
+          <h1 className="text-5xl font-black tracking-tight">Products</h1>
 
           <p className="mt-3 text-muted-foreground">
             Manage inventory and catalog visibility
@@ -28,7 +21,9 @@ export default async function AdminProductsPage() {
         </div>
 
         <Link
-  href="/admin/products/new" className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700">
+          href="/admin/products/new"
+          className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
+        >
           Add Product
         </Link>
       </div>
@@ -42,176 +37,121 @@ export default async function AdminProductsPage() {
 
             <thead className="border-b bg-muted/30">
               <tr className="text-left">
-                <th className="px-6 py-5 font-semibold">
-                  Product
-                </th>
+                <th className="px-6 py-5 font-semibold">Product</th>
 
-                <th className="px-6 py-5 font-semibold">
-                  Category
-                </th>
+                <th className="px-6 py-5 font-semibold">Category</th>
 
-                <th className="px-6 py-5 font-semibold">
-                  Variants
-                </th>
+                <th className="px-6 py-5 font-semibold">Variants</th>
 
-                <th className="px-6 py-5 font-semibold">
-                  Stock
-                </th>
+                <th className="px-6 py-5 font-semibold">Stock</th>
 
-                <th className="px-6 py-5 font-semibold">
-                  Status
-                </th>
+                <th className="px-6 py-5 font-semibold">Status</th>
 
-                <th className="px-6 py-5 font-semibold">
-                  Actions
-                </th>
+                <th className="px-6 py-5 font-semibold">Actions</th>
               </tr>
             </thead>
 
             {/* BODY */}
 
             <tbody>
-              {products.map(
-                (product) => {
-                  const totalStock =
-                    product.variants.reduce(
-                      (
-                        acc,
-                        variant
-                      ) =>
-                        acc +
-                        variant.stock,
-                      0
-                    );
+              {products.map((product) => {
+                const totalStock = product.variants.reduce(
+                  (acc, variant) => acc + variant.stock,
+                  0,
+                );
 
-                  const minPrice =
-                    Math.min(
-                      ...product.variants.map(
-                        (
-                          variant
-                        ) =>
-                          variant.price
-                      )
-                    );
+                const minPrice = Math.min(
+                  ...product.variants.map((variant) => variant.price),
+                );
 
-                  return (
-                    <tr
-                      key={product.id}
-                      className="border-b last:border-0"
-                    >
-                      {/* PRODUCT */}
+                return (
+                  <tr key={product.id} className="border-b last:border-0">
+                    {/* PRODUCT */}
 
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={
-                              product
-                                .variants[0]
-                                ?.imageUrl
-                            }
-                            alt={
-                              product.name
-                            }
-                            className="h-16 w-16 rounded-2xl object-cover"
-                          />
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={product.variants[0]?.imageUrl}
+                          alt={product.name}
+                          className="h-16 w-16 rounded-2xl object-cover"
+                        />
 
-                          <div>
-                            <p className="font-bold">
-                              {
-                                product.name
-                              }
-                            </p>
+                        <div>
+                          <p className="font-bold">{product.name}</p>
 
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {
-                                product.brand
-                              }
-                            </p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {product.brand}
+                          </p>
 
-                            <p className="mt-2 text-sm font-semibold">
-                              From $
-                              {minPrice}
-                            </p>
-                          </div>
+                          <p className="mt-2 text-sm font-semibold">
+                            From ${minPrice}
+                          </p>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* CATEGORY */}
+                    {/* CATEGORY */}
 
-                      <td className="px-6 py-5">
-                        <div className="inline-flex rounded-full bg-violet-100 px-4 py-2 text-sm font-medium text-violet-700">
-                          {
-                            product
-                              .category
-                              .name
-                          }
-                        </div>
-                      </td>
+                    <td className="px-6 py-5">
+                      <div className="inline-flex rounded-full bg-violet-100 px-4 py-2 text-sm font-medium text-violet-700">
+                        {product.category.name}
+                      </div>
+                    </td>
 
-                      {/* VARIANTS */}
+                    {/* VARIANTS */}
 
-                      <td className="px-6 py-5">
-                        {
-                          product
-                            .variants
-                            .length
-                        }
-                      </td>
+                    <td className="px-6 py-5">{product.variants.length}</td>
 
-                      {/* STOCK */}
+                    {/* STOCK */}
 
-                      <td className="px-6 py-5">
-                        <span
-                          className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
-                            totalStock >
-                            0
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                    <td className="px-6 py-5">
+                      <span
+                        className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
+                          totalStock > 0
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {totalStock} units
+                      </span>
+                    </td>
+
+                    {/* STATUS */}
+
+                    <td className="px-6 py-5">
+                      <span
+                        className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
+                          product.active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-200 text-gray-700"
+                        }`}
+                      >
+                        {product.active ? "Active" : "Hidden"}
+                      </span>
+                    </td>
+
+                    {/* ACTIONS */}
+
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/product/${product.slug}`}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border transition hover:bg-muted"
                         >
-                          {totalStock} units
-                        </span>
-                      </td>
+                          <Eye className="h-4 w-4" />
+                        </Link>
 
-                      {/* STATUS */}
-
-                      <td className="px-6 py-5">
-                        <span
-                          className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
-                            product.active
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-200 text-gray-700"
-                          }`}
+                        <Link
+                          href={`/admin/products/${product.id}`}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border transition hover:bg-muted"
                         >
-                          {product.active
-                            ? "Active"
-                            : "Hidden"}
-                        </span>
-                      </td>
-
-                      {/* ACTIONS */}
-
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/product/${product.slug}`}
-                            className="flex h-10 w-10 items-center justify-center rounded-xl border transition hover:bg-muted"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Link>
-
-                          <Link
-                            href="/admin/products/new"
-                            className="flex h-10 w-10 items-center justify-center rounded-xl border transition hover:bg-muted"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-              )}
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -104,3 +104,19 @@ export async function getAdminProducts() {
     },
   });
 }
+
+export async function getAdminProductById(
+  id: string
+) {
+  return prisma.product.findUnique({
+    where: {
+      id,
+    },
+
+    include: {
+      variants: true,
+
+      category: true,
+    },
+  });
+}

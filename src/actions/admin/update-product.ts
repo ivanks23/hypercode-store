@@ -6,7 +6,9 @@ import {
   createProductSchema,
 } from "@/schemas/product.schema";
 
-export async function createProductAction(
+export async function updateProductAction(
+  productId: string,
+  variantId: string,
   formData: unknown
 ) {
   const validated =
@@ -14,7 +16,11 @@ export async function createProductAction(
       formData
     );
 
-  await prisma.product.create({
+  await prisma.product.update({
+    where: {
+      id: productId,
+    },
+
     data: {
       name:
         validated.name,
@@ -33,25 +39,29 @@ export async function createProductAction(
 
       categoryId:
         validated.categoryId,
+    },
+  });
 
-      variants: {
-        create: {
-          name:
-            validated.variantName,
+  await prisma.productVariant.update({
+    where: {
+      id: variantId,
+    },
 
-          sku:
-            validated.sku,
+    data: {
+      name:
+        validated.variantName,
 
-          price:
-            validated.price,
+      sku:
+        validated.sku,
 
-          stock:
-            validated.stock,
+      price:
+        validated.price,
 
-          imageUrl:
-            validated.imageUrl,
-        },
-      },
+      stock:
+        validated.stock,
+
+      imageUrl:
+        validated.imageUrl,
     },
   });
 
