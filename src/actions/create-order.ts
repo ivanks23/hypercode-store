@@ -3,6 +3,7 @@
 import { checkoutSchema } from "@/schemas/checkout.schema";
 import { createPreference } from "@/services/payment.service";
 import { createOrder } from "@/services/order.service";
+import { auth } from "@/auth";
 
 type Payload = {
   formData: unknown;
@@ -27,8 +28,14 @@ export async function createOrderAction({
   const validated =
     checkoutSchema.parse(formData);
 
+    const session =
+      await auth();
+
   const order = await createOrder({
-    shippingAddress: validated,
+    userId:
+      session?.user?.id,
+    
+      shippingAddress: validated,
 
     items: items.map((item) => ({
       variantId: item.variantId,

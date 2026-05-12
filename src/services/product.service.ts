@@ -90,3 +90,17 @@ export async function getProductBySlug(
     },
   });
 }
+
+export async function getAdminProducts() {
+  return prisma.product.findMany({
+    include: {
+      category: true,
+
+      variants: true,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
