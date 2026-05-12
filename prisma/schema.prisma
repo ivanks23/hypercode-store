@@ -154,7 +154,7 @@ model Payment {
 
   amount Float
 
-  providerPaymentId String?
+  providerPaymentId String? @unique
 
   orderId String @unique
   order   Order  @relation(fields: [orderId], references: [id])

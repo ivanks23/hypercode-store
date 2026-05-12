@@ -186,3 +186,13 @@ export async function getAdminOrders() {
     },
   });
 }
+
+export async function getPaymentByProviderId(
+  providerPaymentId: string
+) {
+  return prisma.payment.findFirst({
+  where: {
+    providerPaymentId,
+  },
+});
+}

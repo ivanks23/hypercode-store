@@ -9,6 +9,7 @@ import { getPaymentInfo } from "@/services/payment.service";
 
 import {
   createPaymentRecord,
+  getPaymentByProviderId,
   updateOrderStatus,
 } from "@/services/order.service";
 
@@ -70,6 +71,23 @@ console.log(
   "PAYMENT FULL:",
   payment
 );
+
+const existingPayment =
+  await getPaymentByProviderId(
+    String(payment.id)
+  );
+
+if (existingPayment) {
+  console.log(
+    "Payment already processed:",
+    payment.id
+  );
+
+  return NextResponse.json({
+    received: true,
+    duplicate: true,
+  });
+}
 
     const orderId =
       payment.external_reference;
