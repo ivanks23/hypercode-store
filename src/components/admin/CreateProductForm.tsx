@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createProductAction } from "@/actions/admin/create-product";
 import { updateProductAction } from "@/actions/admin/update-product";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 import {
   createProductSchema,
@@ -46,31 +47,22 @@ export function CreateProductForm({ categories, initialData }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createProductSchema),
 
     defaultValues: {
       name: initialData?.name || "",
-
       slug: initialData?.slug || "",
-
       description: initialData?.description || "",
-
       brand: initialData?.brand || "",
-
       categoryId: initialData?.categoryId || "",
-
       active: initialData?.active ?? true,
-
       variantName: initialData?.variants[0]?.name || "",
-
       sku: initialData?.variants[0]?.sku || "",
-
       price: initialData?.variants[0]?.price || 0,
-
       stock: initialData?.variants[0]?.stock || 0,
-
       imageUrl: initialData?.variants[0]?.imageUrl || "",
     },
   });
@@ -251,15 +243,32 @@ export function CreateProductForm({ categories, initialData }: Props) {
 
         {/* IMAGE */}
 
-        <div className="mt-6">
-          <label className="mb-2 block text-sm font-medium">Image URL</label>
+<div className="mt-6">
+  <label className="mb-2 block text-sm font-medium">
+    Product Image
+  </label>
 
-          <input
-            {...register("imageUrl")}
-            className="w-full rounded-2xl border px-4 py-3 outline-none transition focus:border-violet-500"
-            placeholder="https://..."
-          />
-        </div>
+  <ImageUpload
+    value={
+      initialData
+        ?.variants[0]
+        ?.imageUrl
+    }
+    onChange={(url) => {
+      setValue(
+        "imageUrl",
+        url
+      );
+    }}
+  />
+
+  <input
+    type="hidden"
+    {...register(
+      "imageUrl"
+    )}
+  />
+</div>
       </section>
 
       {/* CTA */}
