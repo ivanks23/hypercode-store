@@ -6,6 +6,8 @@ import {
   createProductSchema,
 } from "@/schemas/product.schema";
 
+import { redirect } from "next/navigation";
+
 export async function createProductAction(
   formData: unknown
 ) {
@@ -55,7 +57,6 @@ export async function createProductAction(
     },
   });
 
-  return {
-    success: true,
-  };
+redirect("/admin/products");
+
 }
