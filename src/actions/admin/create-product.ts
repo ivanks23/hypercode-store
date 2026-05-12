@@ -18,19 +18,14 @@ export async function createProductAction(
     data: {
       name:
         validated.name,
-
       slug:
         validated.slug,
-
       description:
         validated.description,
-
       brand:
         validated.brand,
-
       active:
         validated.active,
-
       categoryId:
         validated.categoryId,
 
@@ -38,16 +33,12 @@ export async function createProductAction(
         create: {
           name:
             validated.variantName,
-
           sku:
             validated.sku,
-
           price:
             validated.price,
-
           stock:
             validated.stock,
-
           imageUrl:
             validated.imageUrl,
         },

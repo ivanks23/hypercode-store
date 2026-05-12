@@ -172,3 +172,17 @@ export async function getUserOrderById({
     },
   });
 }
+
+export async function getAdminOrders() {
+  return prisma.order.findMany({
+    include: {
+      user: true,
+      items: true,
+      payment: true,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
