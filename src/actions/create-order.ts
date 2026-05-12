@@ -4,19 +4,16 @@ import { checkoutSchema } from "@/schemas/checkout.schema";
 import { createPreference } from "@/services/payment.service";
 import { createOrder } from "@/services/order.service";
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 
 type Payload = {
   formData: unknown;
 
   items: {
     variantId: string;
-
     productName: string;
-
     variantName: string;
-
     price: number;
-
     quantity: number;
   }[];
 };
@@ -30,6 +27,32 @@ export async function createOrderAction({
 
     const session =
       await auth();
+
+      for (const item of items) {
+
+  const variant =
+    await prisma.productVariant.findUnique({
+      where: {
+        id:
+          item.variantId,
+      },
+    });
+
+  if (!variant) {
+    throw new Error(
+      "Variant not found"
+    );
+  }
+
+  if (
+    variant.stock <
+    item.quantity
+  ) {
+    throw new Error(
+      `${variant.name} is out of stock`
+    );
+  }
+}
 
   const order = await createOrder({
     userId:

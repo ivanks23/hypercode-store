@@ -54,11 +54,8 @@ export default async function ProductPage({
       <ProductDetails
         product={{
           name: product.name,
-
           slug: product.slug,
-
           brand: product.brand,
-
           description:
             product.description,
 
@@ -66,16 +63,12 @@ export default async function ProductPage({
             product.variants.map(
               (variant) => ({
                 id: variant.id,
-
                 name:
                   variant.name,
-
                 price:
                   variant.price,
-
                 stock:
                   variant.stock,
-
                 imageUrl:
                   variant.imageUrl,
               })

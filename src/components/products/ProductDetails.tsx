@@ -6,32 +6,25 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 
 type Variant = {
   id: string;
-
   name: string;
-
   price: number;
-
   stock: number;
-
   imageUrl: string;
 };
 
 type Props = {
   product: {
     name: string;
-
     slug: string;
-
     brand: string;
-
     description: string;
-
     variants: Variant[];
   };
 };
 
 export function ProductDetails({ product }: Props) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  const outOfStock = selectedVariant.stock <= 0;
 
   const [selectedImage, setSelectedImage] = useState(
     product.variants[0].imageUrl,
@@ -223,7 +216,14 @@ export function ProductDetails({ product }: Props) {
         {/* CTA */}
 
         <div className="mt-10">
-          {selectedVariant.stock > 0 ? (
+          {outOfStock ? (
+            <button
+              disabled
+              className="rounded-2xl bg-gray-300 px-8 py-4 font-semibold text-gray-600"
+            >
+              Out of stock
+            </button>
+          ) : (
             <AddToCartButton
               item={{
                 variantId: selectedVariant.id,
@@ -238,13 +238,9 @@ export function ProductDetails({ product }: Props) {
 
                 price: selectedVariant.price,
 
-                quantity,
+                quantity: 1,
               }}
             />
-          ) : (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-600">
-              Product unavailable
-            </div>
           )}
         </div>
       </div>
