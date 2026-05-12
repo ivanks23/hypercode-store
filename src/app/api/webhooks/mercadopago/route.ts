@@ -1,58 +1,159 @@
 import {
-  NextRequest,
-  NextResponse,
-} from "next/server";
+  OrderStatus,
+  PaymentStatus,
+} from "@prisma/client";
 
-import { Payment } from "mercadopago";
+import { NextResponse } from "next/server";
 
-import { mercadopago } from "@/lib/mercadopago";
+import { getPaymentInfo } from "@/services/payment.service";
+
+import {
+  createPaymentRecord,
+  updateOrderStatus,
+} from "@/services/order.service";
 
 export async function POST(
-  request: NextRequest
+  request: Request
 ) {
   try {
     const body =
       await request.json();
 
     console.log(
-      "Webhook received:",
+      "Mercado Pago webhook:",
       body
     );
 
     if (
-      body.type !== "payment"
+      body.type !==
+      "payment"
     ) {
       return NextResponse.json({
-        ignored: true,
+        received: true,
       });
     }
 
     const paymentId =
-      body.data.id;
+      body.data?.id;
 
-    const paymentClient =
-      new Payment(mercadopago);
+    if (!paymentId) {
+      return NextResponse.json(
+        {
+          error:
+            "Missing payment id",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
-    const payment =
-      await paymentClient.get({
-        id: paymentId,
-      });
+let payment;
 
-    console.log(
-      "Payment info:",
-      payment
+try {
+  payment =
+    await getPaymentInfo(
+      String(paymentId)
+    );
+} catch (error) {
+  console.error(
+    "Payment lookup failed:",
+    error
+  );
+
+  return NextResponse.json({
+    received: true,
+  });
+};
+
+console.log(
+  "PAYMENT FULL:",
+  payment
+);
+
+    const orderId =
+      payment.external_reference;
+
+    if (!orderId) {
+      return NextResponse.json(
+        {
+          error:
+            "Missing external reference",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    let paymentStatus: PaymentStatus =
+      PaymentStatus.PENDING;
+
+    let orderStatus: OrderStatus =
+      OrderStatus.PENDING;
+
+    switch (
+      payment.status
+    ) {
+      case "approved":
+        paymentStatus =
+          PaymentStatus.APPROVED;
+
+        orderStatus =
+          OrderStatus.PAID;
+
+        break;
+
+      case "rejected":
+      case "cancelled":
+        paymentStatus =
+          PaymentStatus.REJECTED;
+
+        orderStatus =
+          OrderStatus.CANCELLED;
+
+        break;
+
+      default:
+        paymentStatus =
+          PaymentStatus.PENDING;
+
+        orderStatus =
+          OrderStatus.PENDING;
+    }
+
+    await createPaymentRecord({
+      orderId,
+
+      amount:
+        payment.transaction_amount ||
+        0,
+
+      providerPaymentId:
+        String(payment.id),
+
+      status:
+        paymentStatus,
+    });
+
+    await updateOrderStatus(
+      orderId,
+      orderStatus
     );
 
     return NextResponse.json({
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Webhook error:",
+      error
+    );
 
     return NextResponse.json(
       {
         error:
-          "Webhook error",
+          "Webhook failed",
       },
       {
         status: 500,

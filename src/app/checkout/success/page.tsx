@@ -4,7 +4,35 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default function SuccessPage() {
+import { syncPaymentAction } from "@/actions/sync-payment";
+
+type Props = {
+  searchParams: Promise<{
+    payment_id?: string;
+
+    external_reference?: string;
+  }>;
+};
+
+export default async function SuccessPage({
+  searchParams,
+}: Props) {
+  const params =
+    await searchParams;
+
+  if (
+    params.payment_id &&
+    params.external_reference
+  ) {
+    await syncPaymentAction({
+      paymentId:
+        params.payment_id,
+
+      orderId:
+        params.external_reference,
+    });
+  }
+
   return (
     <main className="container mx-auto flex min-h-[70vh] items-center justify-center px-6 py-16">
       <div className="max-w-xl rounded-[32px] border bg-white p-12 text-center shadow-sm">

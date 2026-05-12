@@ -7,17 +7,11 @@ import { useCartStore } from "@/store/cart.store";
 type Props = {
   item: {
     variantId: string;
-
     productSlug: string;
-
     productName: string;
-
     variantName: string;
-
     imageUrl: string;
-
     price: number;
-
     quantity: number;
   };
 };

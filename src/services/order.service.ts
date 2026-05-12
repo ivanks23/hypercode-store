@@ -1,4 +1,10 @@
-import { Prisma } from "@prisma/client";
+import {
+  OrderStatus,
+  PaymentProvider,
+  PaymentStatus,
+  Prisma,
+} from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 
 type CreateOrderInput = {
@@ -6,15 +12,10 @@ type CreateOrderInput = {
 
   items: {
     variantId: string;
-
     productName: string;
-
     variantName: string;
-
     sku?: string;
-
     quantity: number;
-
     unitPrice: number;
   }[];
 
@@ -34,12 +35,14 @@ export async function createOrder({
   items,
   shippingAddress,
 }: CreateOrderInput) {
-  const subtotal = items.reduce(
-    (acc, item) =>
-      acc +
-      item.unitPrice * item.quantity,
-    0
-  );
+  const subtotal =
+    items.reduce(
+      (acc, item) =>
+        acc +
+        item.unitPrice *
+          item.quantity,
+      0
+    );
 
   const total = subtotal;
 
@@ -48,21 +51,80 @@ export async function createOrder({
       userId,
       subtotal,
       total,
-      shippingAddress: shippingAddress as Prisma.InputJsonValue,
+      shippingAddress:
+        shippingAddress as Prisma.InputJsonValue,
+
       items: {
-        create: items.map((item) => ({
-          productName: item.productName,
-          variantName: item.variantName,
-          sku: item.sku || "",
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          variantId: item.variantId,
-        })),
+        create: items.map(
+          (item) => ({
+            productName:
+              item.productName,
+            variantName:
+              item.variantName,
+            sku:
+              item.sku || "",
+            quantity:
+              item.quantity,
+            unitPrice:
+              item.unitPrice,
+            variantId:
+              item.variantId,
+          })
+        ),
       },
     },
 
     include: {
       items: true,
+    },
+  });
+}
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: OrderStatus
+) {
+  return prisma.order.update({
+    where: {
+      id: orderId,
+    },
+
+    data: {
+      status,
+    },
+  });
+}
+
+type CreatePaymentInput = {
+  orderId: string;
+  amount: number;
+  providerPaymentId: string;
+  status: PaymentStatus;
+};
+
+export async function createPaymentRecord({
+  orderId,
+  amount,
+  providerPaymentId,
+  status,
+}: CreatePaymentInput) {
+  return prisma.payment.upsert({
+    where: {
+      orderId,
+    },
+
+    update: {
+      providerPaymentId,
+      status,
+      amount,
+    },
+
+    create: {
+      orderId,
+      amount,
+      provider: PaymentProvider.MERCADOPAGO,
+      providerPaymentId,
+      status,
     },
   });
 }
