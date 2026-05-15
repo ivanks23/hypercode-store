@@ -196,3 +196,65 @@ export async function getPaymentByProviderId(
   },
 });
 }
+
+export async function decrementOrderInventory(
+  orderId: string
+) {
+
+  const order =
+    await prisma.order.findUnique({
+      where: {
+        id: orderId,
+      },
+
+      include: {
+        items: true,
+      },
+    });
+
+  if (!order) {
+    throw new Error(
+      "Order not found"
+    );
+  }
+
+for (const item of order.items) {
+
+  const variant =
+    await prisma.productVariant.findUnique({
+      where: {
+        id:
+          item.variantId,
+      },
+    });
+
+  if (!variant) {
+    throw new Error(
+      "Variant not found"
+    );
+  }
+
+  if (
+    variant.stock <
+    item.quantity
+  ) {
+    throw new Error(
+      `Insufficient stock for ${variant.name}`
+    );
+  }
+
+  await prisma.productVariant.update({
+    where: {
+      id:
+        item.variantId,
+    },
+
+    data: {
+      stock: {
+        decrement:
+          item.quantity,
+      },
+    },
+  });
+}
+}

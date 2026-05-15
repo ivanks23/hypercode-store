@@ -1,75 +1,55 @@
-import {
-  OrderStatus,
-  PaymentStatus,
-} from "@prisma/client";
-
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
-
 import { getPaymentInfo } from "@/services/payment.service";
 
 import {
   createPaymentRecord,
+  decrementOrderInventory,
   getPaymentByProviderId,
   updateOrderStatus,
 } from "@/services/order.service";
 
-export async function POST(
-  request: Request
-) {
+export async function POST(request: Request) {
   try {
-    const body =
-      await request.json();
+    const body = await request.json();
 
-    console.log(
-      "Mercado Pago webhook:",
-      body
-    );
+    console.log("Mercado Pago webhook:", body);
 
-    if (
-      body.type !==
-      "payment"
-    ) {
+    if (body.type !== "payment") {
       return NextResponse.json({
         received: true,
       });
     }
 
-    const paymentId =
-      body.data?.id;
+    const paymentId = body.data?.id;
 
     if (!paymentId) {
       return NextResponse.json(
         {
-          error:
-            "Missing payment id",
+          error: "Missing payment id",
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
-let payment;
+    let payment;
 
-try {
-  payment =
-    await getPaymentInfo(
-      String(paymentId)
-    );
-} catch (error) {
-  console.error(
-    "Payment lookup failed:",
-    error
-  );
+    try {
+      payment = await getPaymentInfo(String(paymentId));
+    } catch (error) {
+      console.error("Payment lookup failed:", error);
 
-  return NextResponse.json({
-    received: true,
-  });
-};
+      return NextResponse.json({
+        received: true,
+      });
+    }
 
-console.log(
-  "PAYMENT FULL:",
-  payment
+    console.log("PAYMENT FULL:", payment);
+    console.log(
+  "PAYMENT STATUS:",
+  payment.status
 );
 
 const existingPayment =
@@ -77,7 +57,12 @@ const existingPayment =
     String(payment.id)
   );
 
-if (existingPayment) {
+if (
+  existingPayment &&
+  existingPayment.status ===
+    PaymentStatus.APPROVED
+) {
+
   console.log(
     "Payment already processed:",
     payment.id
@@ -89,93 +74,89 @@ if (existingPayment) {
   });
 }
 
-    const orderId =
-      payment.external_reference;
+    const orderId = payment.external_reference;
 
     if (!orderId) {
       return NextResponse.json(
         {
-          error:
-            "Missing external reference",
+          error: "Missing external reference",
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
-    let paymentStatus: PaymentStatus =
-      PaymentStatus.PENDING;
+    let paymentStatus: PaymentStatus = PaymentStatus.PENDING;
 
-    let orderStatus: OrderStatus =
-      OrderStatus.PENDING;
+    let orderStatus: OrderStatus = OrderStatus.PENDING;
 
-    switch (
-      payment.status
-    ) {
+    switch (payment.status) {
       case "approved":
-        paymentStatus =
-          PaymentStatus.APPROVED;
+        paymentStatus = PaymentStatus.APPROVED;
 
-        orderStatus =
-          OrderStatus.PAID;
+        orderStatus = OrderStatus.PAID;
 
         break;
 
       case "rejected":
       case "cancelled":
-        paymentStatus =
-          PaymentStatus.REJECTED;
+        paymentStatus = PaymentStatus.REJECTED;
 
-        orderStatus =
-          OrderStatus.CANCELLED;
+        orderStatus = OrderStatus.CANCELLED;
 
         break;
 
       default:
-        paymentStatus =
-          PaymentStatus.PENDING;
+        paymentStatus = PaymentStatus.PENDING;
 
-        orderStatus =
-          OrderStatus.PENDING;
+        orderStatus = OrderStatus.PENDING;
     }
 
     await createPaymentRecord({
       orderId,
 
-      amount:
-        payment.transaction_amount ||
-        0,
+      amount: payment.transaction_amount || 0,
 
-      providerPaymentId:
-        String(payment.id),
+      providerPaymentId: String(payment.id),
 
-      status:
-        paymentStatus,
+      status: paymentStatus,
     });
 
-    await updateOrderStatus(
-      orderId,
-      orderStatus
-    );
+if (
+  paymentStatus ===
+  PaymentStatus.APPROVED
+) {
+
+  console.log(
+    "DECREMENTING INVENTORY FOR:",
+    orderId
+  );
+
+  await decrementOrderInventory(
+    orderId
+  );
+
+  console.log(
+    "INVENTORY UPDATED"
+  );
+}
+
+    await updateOrderStatus(orderId, orderStatus);
 
     return NextResponse.json({
       success: true,
     });
   } catch (error) {
-    console.error(
-      "Webhook error:",
-      error
-    );
+    console.error("Webhook error:", error);
 
     return NextResponse.json(
       {
-        error:
-          "Webhook failed",
+        error: "Webhook failed",
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

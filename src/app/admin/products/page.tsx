@@ -13,11 +13,8 @@ type Props = {
 export default async function AdminProductsPage({ searchParams }: Props) {
   const { q, page } = await searchParams;
 
-  const currentPage =
-  page
-    ? parseInt(page)
-    : 1;
-  
+  const currentPage = page ? parseInt(page) : 1;
+
   const data = await getAdminProducts({
     query: q,
 
@@ -25,7 +22,6 @@ export default async function AdminProductsPage({ searchParams }: Props) {
   });
 
   const products = data.products;
-  
 
   return (
     <div>
@@ -49,23 +45,23 @@ export default async function AdminProductsPage({ searchParams }: Props) {
       </div>
 
       <form className="mb-8">
-  <div className="flex flex-col gap-4 md:flex-row">
-    <input
-      type="text"
-      name="q"
-      defaultValue={q}
-      placeholder="Search products..."
-      className="h-12 w-full rounded-2xl border bg-white px-5 outline-none transition focus:border-violet-500"
-    />
+        <div className="flex flex-col gap-4 md:flex-row">
+          <input
+            type="text"
+            name="q"
+            defaultValue={q}
+            placeholder="Search products..."
+            className="h-12 w-full rounded-2xl border bg-white px-5 outline-none transition focus:border-violet-500"
+          />
 
-    <button
-      type="submit"
-      className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
-    >
-      Search
-    </button>
-  </div>
-</form>
+          <button
+            type="submit"
+            className="rounded-2xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
+          >
+            Search
+          </button>
+        </div>
+      </form>
 
       {/* TABLE */}
 
@@ -144,15 +140,24 @@ export default async function AdminProductsPage({ searchParams }: Props) {
                     {/* STOCK */}
 
                     <td className="px-6 py-5">
-                      <span
-                        className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
-                          totalStock > 0
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {totalStock} units
-                      </span>
+                      <div>
+                        <p className="font-semibold">
+                          {product.variants[0]?.stock} units
+                        </p>
+
+                        {product.variants[0]?.stock === 0 && (
+                          <span className="mt-2 inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                            Out of stock
+                          </span>
+                        )}
+
+                        {product.variants[0]?.stock > 0 &&
+                          product.variants[0]?.stock <= 5 && (
+                            <span className="mt-2 inline-flex rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+                              Low stock
+                            </span>
+                          )}
+                      </div>
                     </td>
 
                     {/* STATUS */}
@@ -197,59 +202,50 @@ export default async function AdminProductsPage({ searchParams }: Props) {
       </div>
 
       <div className="mt-8 flex items-center justify-between">
-  {/* INFO */}
+        {/* INFO */}
 
-  <p className="text-sm text-muted-foreground">
-    Page {data.currentPage} of{" "}
-    {data.totalPages}
-  </p>
+        <p className="text-sm text-muted-foreground">
+          Page {data.currentPage} of {data.totalPages}
+        </p>
 
-  {/* BUTTONS */}
+        {/* BUTTONS */}
 
-  <div className="flex items-center gap-3">
-    {data.currentPage > 1 && (
-      <Link
-        href={{
-          pathname:
-            "/admin/products",
+        <div className="flex items-center gap-3">
+          {data.currentPage > 1 && (
+            <Link
+              href={{
+                pathname: "/admin/products",
 
-          query: {
-            q,
+                query: {
+                  q,
 
-            page:
-              data.currentPage -
-              1,
-          },
-        }}
-        className="rounded-xl border px-5 py-2 text-sm font-medium transition hover:bg-muted"
-      >
-        Previous
-      </Link>
-    )}
+                  page: data.currentPage - 1,
+                },
+              }}
+              className="rounded-xl border px-5 py-2 text-sm font-medium transition hover:bg-muted"
+            >
+              Previous
+            </Link>
+          )}
 
-    {data.currentPage <
-      data.totalPages && (
-      <Link
-        href={{
-          pathname:
-            "/admin/products",
+          {data.currentPage < data.totalPages && (
+            <Link
+              href={{
+                pathname: "/admin/products",
 
-          query: {
-            q,
+                query: {
+                  q,
 
-            page:
-              data.currentPage +
-              1,
-          },
-        }}
-        className="rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
-      >
-        Next
-      </Link>
-    )}
-  </div>
-</div>
-
+                  page: data.currentPage + 1,
+                },
+              }}
+              className="rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+            >
+              Next
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -42,6 +42,10 @@ export async function createPreference({
         external_reference:
           orderId,
 
+        notification_url:
+          `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
+
+
         back_urls: {
           success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
           failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure`,
