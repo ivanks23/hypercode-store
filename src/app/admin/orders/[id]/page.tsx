@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getAdminOrderById } from "@/services/order.service";
+import { ShippingForm } from "@/components/admin/ShippingForm";
 
 type Props = {
   params: Promise<{
@@ -103,7 +104,9 @@ export default async function AdminOrderPage({ params }: Props) {
               <p>{shipping.fullName}</p>
               <p>{shipping.phone}</p>
               <p>{shipping.street}</p>
-              <p>{shipping.city}, {shipping.state}</p>
+              <p>
+                {shipping.city}, {shipping.state}
+              </p>
               <p>{shipping.zipCode}</p>
               <p>{shipping.country}</p>
             </div>
@@ -152,6 +155,48 @@ export default async function AdminOrderPage({ params }: Props) {
               <p className="text-muted-foreground">{order.user?.email}</p>
             </div>
           </div>
+
+          {/* SHIPPING WORKFLOW */}
+
+          {!order.trackingNumber && (
+            <ShippingForm orderId={order.id} />
+          )}
+
+          {/* SHIPPING DETAILS */}
+
+          {order.trackingNumber && (
+            <div className="rounded-[32px] border bg-white p-8 shadow-sm">
+              <h2 className="mb-8 text-2xl font-bold">Shipment Details</h2>
+
+              <div className="space-y-5">
+                <div>
+                  <p className="text-sm text-muted-foreground">Carrier</p>
+
+                  <p className="mt-2 font-semibold">{order.carrier}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Tracking Number
+                  </p>
+
+                  <p className="mt-2 break-all font-mono text-sm">
+                    {order.trackingNumber}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-muted-foreground">Shipped At</p>
+
+                  <p className="mt-2 font-medium">
+                    {order.shippedAt
+                      ? new Date(order.shippedAt).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </main>
