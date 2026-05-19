@@ -281,3 +281,35 @@ export async function getAdminOrderById(
     },
   });
 }
+
+type UpdateShippingInput = {
+  orderId: string;
+  trackingNumber: string;
+  carrier: string;
+};
+
+export async function updateShippingInfo({
+  orderId,
+  trackingNumber,
+  carrier,
+}: UpdateShippingInput) {
+
+  return prisma.order.update({
+    where: {
+      id: orderId,
+    },
+
+    data: {
+      trackingNumber,
+      carrier,
+
+      shippedAt:
+        new Date(),
+
+      status:
+        OrderStatus.SHIPPED,
+    },
+  });
+}
+
+

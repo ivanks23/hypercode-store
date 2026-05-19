@@ -1,14 +1,32 @@
 import { notFound } from "next/navigation";
-
-import {
-  CreditCard,
-  Package,
-  Truck,
-} from "lucide-react";
-
 import { auth } from "@/auth";
 
 import { getUserOrderById } from "@/services/order.service";
+
+function getStatusStyles(status: string) {
+  switch (status) {
+    case "PAID":
+      return "bg-green-100 text-green-700";
+
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-900";
+
+    case "PROCESSING":
+      return "bg-blue-100 text-blue-900";
+
+    case "SHIPPED":
+      return "bg-purple-100 text-purple-900";
+
+    case "DELIVERED":
+      return "bg-emerald-100 text-emerald-700";
+
+    case "CANCELLED":
+      return "bg-red-100 text-red-700";
+
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
 
 type Props = {
   params: Promise<{
@@ -16,222 +34,209 @@ type Props = {
   }>;
 };
 
-export default async function OrderDetailPage({
-  params,
-}: Props) {
-  const session =
-    await auth();
+export default async function OrderPage({ params }: Props) {
+  const session = await auth();
 
   if (!session?.user?.id) {
     return null;
   }
 
-  const { id } =
-    await params;
+  const { id } = await params;
 
-  const order =
-    await getUserOrderById({
-      orderId: id,
-
-      userId:
-        session.user.id,
-    });
+  const order = await getUserOrderById({
+    orderId: id,
+    userId: session.user.id,
+  });
 
   if (!order) {
     notFound();
   }
 
+  const shipping = order.shippingAddress as {
+    fullName: string;
+    phone: string;
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+
   return (
     <main className="container mx-auto px-6 py-10">
       {/* HEADER */}
 
-      <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-5xl font-black tracking-tight">
-            Order Details
-          </h1>
+      <div className="mb-10">
+        <h1 className="text-5xl font-black tracking-tight">Order Details</h1>
 
-          <p className="mt-3 font-mono text-sm text-muted-foreground">
-            {order.id}
-          </p>
-        </div>
-
-        <div className="inline-flex rounded-full bg-green-100 px-5 py-3 text-sm font-semibold text-green-700">
-          {order.status}
-        </div>
+        <p className="mt-3 font-mono text-sm text-muted-foreground">
+          {order.id}
+        </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-        {/* ITEMS */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* LEFT */}
 
-        <section className="space-y-6">
-          {order.items.map(
-            (item) => (
-              <article
-                key={item.id}
-                className="rounded-[32px] border bg-white p-6 shadow-sm"
-              >
-                <div className="flex flex-col gap-6 md:flex-row">
-                  {/* IMAGE */}
+        <div className="space-y-8 lg:col-span-2">
+          {/* PRODUCTS */}
 
-                  <img
-                    src={
-                      item.variant
-                        .imageUrl
-                    }
-                    alt={
-                      item.productName
-                    }
-                    className="h-36 w-36 rounded-2xl object-cover"
-                  />
+          <div className="rounded-[32px] border bg-white p-8 shadow-sm">
+            <h2 className="mb-8 text-2xl font-bold">Products</h2>
 
-                  {/* INFO */}
+            <div className="space-y-6">
+              {order.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between border-b pb-6 last:border-none"
+                >
+                  {/* LEFT */}
 
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold">
-                      {
-                        item.productName
-                      }
-                    </h2>
+                  <div className="flex items-center gap-5">
+                    <div className="h-24 w-24 overflow-hidden rounded-2xl border bg-gray-50">
+                      <img
+                        src={item.variant.imageUrl}
+                        alt={item.productName}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
 
-                    <p className="mt-2 text-muted-foreground">
-                      {
-                        item.variantName
-                      }
-                    </p>
+                    <div>
+                      <p className="font-semibold">{item.productName}</p>
 
-                    <div className="mt-6 flex flex-wrap gap-6 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">
-                          Quantity
-                        </p>
+                      <p className="text-sm text-muted-foreground">
+                        {item.variantName}
+                      </p>
 
-                        <p className="mt-1 font-semibold">
-                          {
-                            item.quantity
-                          }
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-muted-foreground">
-                          Unit price
-                        </p>
-
-                        <p className="mt-1 font-semibold">
-                          $
-                          {
-                            item.unitPrice
-                          }
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-muted-foreground">
-                          Subtotal
-                        </p>
-
-                        <p className="mt-1 font-semibold">
-                          $
-                          {(
-                            item.unitPrice *
-                            item.quantity
-                          ).toFixed(
-                            2
-                          )}
-                        </p>
-                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Qty: {item.quantity}
+                      </p>
                     </div>
                   </div>
+
+                  {/* RIGHT */}
+
+                  <div className="text-right">
+                    <p className="text-xl font-bold">
+                      ${(item.unitPrice * item.quantity).toFixed(2)}
+                    </p>
+
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      ${item.unitPrice.toFixed(2)} each
+                    </p>
+                  </div>
                 </div>
-              </article>
-            )
-          )}
-        </section>
-
-        {/* SUMMARY */}
-
-        <aside className="h-fit rounded-[32px] border bg-white p-8 shadow-sm">
-          <h2 className="text-2xl font-bold">
-            Order Summary
-          </h2>
-
-          {/* TOTAL */}
-
-          <div className="mt-8 border-t pt-6">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                Total
-              </span>
-
-              <span className="text-3xl font-black">
-                $
-                {order.total.toFixed(
-                  2
-                )}
-              </span>
-            </div>
-          </div>
-
-          {/* PAYMENT */}
-
-          <div className="mt-8 rounded-2xl border bg-muted/30 p-5">
-            <div className="flex items-start gap-4">
-              <CreditCard className="mt-1 h-5 w-5 text-violet-600" />
-
-              <div>
-                <p className="font-semibold">
-                  Payment Status
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {order.payment
-                    ?.status ||
-                    "Pending"}
-                </p>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* SHIPPING */}
 
-          <div className="mt-5 rounded-2xl border bg-muted/30 p-5">
-            <div className="flex items-start gap-4">
-              <Truck className="mt-1 h-5 w-5 text-violet-600" />
+          <div className="rounded-[32px] border bg-white p-8 shadow-sm">
+            <h2 className="mb-8 text-2xl font-bold">Shipping Address</h2>
+
+            <div className="space-y-3 text-sm">
+              <p>{shipping.fullName}</p>
+
+              <p>{shipping.phone}</p>
+
+              <p>{shipping.street}</p>
+
+              <p>
+                {shipping.city}, {shipping.state}
+              </p>
+
+              <p>{shipping.zipCode}</p>
+
+              <p>{shipping.country}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SUMMARY */}
+
+
+        <div className="space-y-8">
+
+          {/* PAYMENT DETAILS */}
+
+          <div className="rounded-[32px] border bg-white p-8 shadow-sm">
+            <h2 className="mb-8 text-2xl font-bold">Payment Details</h2>
+
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm text-muted-foreground">Provider</p>
+
+                <p className="mt-2 font-semibold">
+                  {order.payment ? "Mercado Pago" : "No payment"}
+                </p>
+              </div>
 
               <div>
-                <p className="font-semibold">
-                  Shipping
-                </p>
+                <p className="text-sm text-muted-foreground">Payment Status</p>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Processing order
+                <div
+                  className={`mt-2 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${
+                    order.payment?.status === "APPROVED"
+                      ? "bg-green-100 text-green-700"
+                      : order.payment?.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-900"
+                        : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {order.payment?.status || "NO PAYMENT"}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">Transaction ID</p>
+
+                <p className="mt-2 break-all font-mono text-sm">
+                  {order.payment?.providerPaymentId || "N/A"}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ITEMS */}
+          <div className="rounded-[32px] border bg-white p-8 shadow-sm">
+            <h2 className="mb-8 text-2xl font-bold">Summary</h2>
 
-          <div className="mt-5 rounded-2xl border bg-muted/30 p-5">
-            <div className="flex items-start gap-4">
-              <Package className="mt-1 h-5 w-5 text-violet-600" />
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm text-muted-foreground">Order Status</p>
+
+                <div
+                  className={`mt-2 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${getStatusStyles(order.status)}`}
+                >
+                  {order.status}
+                </div>
+              </div>
 
               <div>
-                <p className="font-semibold">
-                  Items
-                </p>
+                <p className="text-sm text-muted-foreground">Payment</p>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {
-                    order.items.length
-                  }{" "}
-                  product(s)
+                <div
+                  className={`mt-2 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${
+                    order.payment?.status === "APPROVED"
+                      ? "bg-green-100 text-green-700"
+                      : order.payment?.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-900"
+                        : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {order.payment?.status || "NO PAYMENT"}
+                </div>
+              </div>
+
+              <div className="border-t pt-5">
+                <p className="text-sm text-muted-foreground">Total</p>
+
+                <p className="mt-2 text-4xl font-black">
+                  ${order.total.toFixed(2)}
                 </p>
               </div>
             </div>
           </div>
-        </aside>
+        </div>
       </div>
     </main>
   );

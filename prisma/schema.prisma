@@ -127,6 +127,10 @@ userId String?
   payment Payment?
 
   createdAt DateTime @default(now())
+
+  trackingNumber String?
+  carrier        String?
+  shippedAt      DateTime?
 }
 
 model OrderItem {
