@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-
 import { getAdminOrderById } from "@/services/order.service";
 
 type Props = {
@@ -102,17 +101,10 @@ export default async function AdminOrderPage({ params }: Props) {
 
             <div className="space-y-2 text-sm">
               <p>{shipping.fullName}</p>
-
               <p>{shipping.phone}</p>
-
               <p>{shipping.street}</p>
-
-              <p>
-                {shipping.city}, {shipping.state}
-              </p>
-
+              <p>{shipping.city}, {shipping.state}</p>
               <p>{shipping.zipCode}</p>
-
               <p>{shipping.country}</p>
             </div>
           </div>

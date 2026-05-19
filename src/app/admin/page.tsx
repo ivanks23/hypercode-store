@@ -1,9 +1,11 @@
 import { getDashboardAnalytics } from "@/services/analytics.service";
-
 import { DollarSign, Package, ShoppingCart, Users } from "lucide-react";
+import { getInventoryStats } from "@/services/product.service";
+import Link from "next/link";
 
 export default async function AdminDashboardPage() {
   const analytics = await getDashboardAnalytics();
+  const inventoryStats = await getInventoryStats();
   return (
     <div>
       {/* HEADER */}
@@ -69,7 +71,93 @@ export default async function AdminDashboardPage() {
           <h2 className="mt-2 text-4xl font-black">{analytics.customers}</h2>
         </div>
       </section>
-      
+
+      {/* STOCK */}
+
+      <section className="mt-10 rounded-[32px] border bg-white p-8 shadow-sm">
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* LOW STOCK */}
+
+          <div className="rounded-3xl border bg-white p-6">
+            <p className="text-sm text-muted-foreground">Low Stock</p>
+
+            <h2 className="mt-3 text-4xl font-bold text-yellow-600">
+              {inventoryStats.lowStock.length}
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              Products running low
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {inventoryStats.lowStock.slice(0, 5).map((variant) => (
+                <Link
+  key={variant.id}
+  href={`/admin/products/${variant.productId}`}
+  className="flex items-center justify-between rounded-2xl border px-4 py-3 transition hover:bg-gray-50"
+>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {variant.product.name}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {variant.name}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-900">
+                    {variant.stock}
+                  </span>
+
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* OUT OF STOCK */}
+
+          <div className="rounded-3xl border bg-white p-6">
+            <p className="text-sm text-muted-foreground">Out of Stock</p>
+
+            <h2 className="mt-3 text-4xl font-bold text-red-600">
+              {inventoryStats.outOfStock.length}
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              Products unavailable
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {inventoryStats.outOfStock.slice(0, 5).map((variant) => (
+                <Link
+                  key={variant.id}
+                  href={`/admin/products/${variant.productId}`}
+                  className="flex items-center justify-between rounded-2xl border px-4 py-3 transition hover:bg-gray-50"
+                >
+                  <div>
+                    <p className="text-sm font-medium">
+                      {variant.product.name}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {variant.name}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                    0
+                  </span>
+
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TOP SELLING PRODUCTS */}
+
       <section className="mt-10 rounded-[32px] border bg-white p-8 shadow-sm">
         <div className="mb-8">
           <h2 className="text-3xl font-black">Top Selling Products</h2>

@@ -189,3 +189,31 @@ export async function getAdminProductById(id: string) {
     },
   });
 }
+
+export async function getInventoryStats() {
+
+  const variants =
+    await prisma.productVariant.findMany({
+      include: {
+        product: true,
+      },
+    });
+
+  const outOfStock =
+    variants.filter(
+      (variant) =>
+        variant.stock === 0
+    );
+
+  const lowStock =
+    variants.filter(
+      (variant) =>
+        variant.stock > 0 &&
+        variant.stock <= 5
+    );
+
+  return {
+    outOfStock,
+    lowStock,
+  };
+}

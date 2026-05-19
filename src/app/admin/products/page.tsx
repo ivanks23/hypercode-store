@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eye, Package, Pencil } from "lucide-react";
 import { getAdminProducts } from "@/services/product.service";
+import { ProductStatusToggle } from "@/components/admin/ProductStatusToggle";
 
 type Props = {
   searchParams: Promise<{
@@ -73,15 +74,10 @@ export default async function AdminProductsPage({ searchParams }: Props) {
             <thead className="border-b bg-muted/30">
               <tr className="text-left">
                 <th className="px-6 py-5 font-semibold">Product</th>
-
                 <th className="px-6 py-5 font-semibold">Category</th>
-
                 <th className="px-6 py-5 font-semibold">Variants</th>
-
                 <th className="px-6 py-5 font-semibold">Stock</th>
-
                 <th className="px-6 py-5 font-semibold">Status</th>
-
                 <th className="px-6 py-5 font-semibold">Actions</th>
               </tr>
             </thead>
@@ -163,15 +159,10 @@ export default async function AdminProductsPage({ searchParams }: Props) {
                     {/* STATUS */}
 
                     <td className="px-6 py-5">
-                      <span
-                        className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
-                          product.active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-200 text-gray-700"
-                        }`}
-                      >
-                        {product.active ? "Active" : "Hidden"}
-                      </span>
+                      <ProductStatusToggle
+                        productId={product.id}
+                        active={product.active}
+                      />
                     </td>
 
                     {/* ACTIONS */}
