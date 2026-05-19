@@ -1,9 +1,32 @@
 import Link from "next/link";
 import { OrderStatusSelect } from "@/components/admin/OrderStatusSelect";
-
 import { Eye, ShoppingBag } from "lucide-react";
-
 import { getAdminOrders } from "@/services/order.service";
+
+function getStatusStyles(status: string) {
+  switch (status) {
+    case "PAID":
+      return "bg-green-100 text-green-700";
+
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-900";
+
+    case "PROCESSING":
+      return "bg-blue-100 text-blue-900";
+
+    case "SHIPPED":
+      return "bg-purple-100 text-purple-900";
+
+    case "DELIVERED":
+      return "bg-emerald-100 text-emerald-700";
+
+    case "CANCELLED":
+      return "bg-red-100 text-red-700";
+
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
 
 export default async function AdminOrdersPage() {
   const orders = await getAdminOrders();
@@ -47,15 +70,10 @@ export default async function AdminOrdersPage() {
               <thead className="border-b bg-muted/30">
                 <tr className="text-left">
                   <th className="px-6 py-5 font-semibold">Order</th>
-
                   <th className="px-6 py-5 font-semibold">Customer</th>
-
                   <th className="px-6 py-5 font-semibold">Payment</th>
-
                   <th className="px-6 py-5 font-semibold">Status</th>
-
                   <th className="px-6 py-5 font-semibold">Total</th>
-
                   <th className="px-6 py-5 font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -68,13 +86,15 @@ export default async function AdminOrdersPage() {
                     {/* ORDER */}
 
                     <td className="px-6 py-5">
-                      <div>
-                        <p className="font-mono text-sm">{order.id}</p>
-
-                        <p className="mt-2 text-sm text-muted-foreground">
-                          {new Date(order.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="font-medium text-violet-600 hover:underline"
+                      >
+                        {order.id.slice(0, 12)}...
+                      </Link>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
                     </td>
 
                     {/* CUSTOMER */}
@@ -95,13 +115,17 @@ export default async function AdminOrdersPage() {
 
                     <td className="px-6 py-5">
                       <span
-                        className={`inline-flex rounded-full px-4 py-2 text-sm font-medium ${
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                           order.payment?.status === "APPROVED"
                             ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            : order.payment?.status === "PENDING"
+                              ? "bg-yellow-100 text-yellow-900"
+                              : order.payment?.status === "REJECTED"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
                         }`}
                       >
-                        {order.payment?.status || "PENDING"}
+                        {order.payment?.status || "NO PAYMENT"}
                       </span>
                     </td>
 
@@ -130,7 +154,7 @@ export default async function AdminOrdersPage() {
 
                     <td className="px-6 py-5">
                       <Link
-                        href={`/orders/${order.id}`}
+                        href={`/admin/orders/${order.id}`}
                         className="flex h-10 w-10 items-center justify-center rounded-xl border transition hover:bg-muted"
                       >
                         <Eye className="h-4 w-4" />

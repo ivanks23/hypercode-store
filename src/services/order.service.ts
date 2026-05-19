@@ -258,3 +258,26 @@ for (const item of order.items) {
   });
 }
 }
+
+export async function getAdminOrderById(
+  orderId: string
+) {
+
+  return prisma.order.findUnique({
+    where: {
+      id: orderId,
+    },
+
+    include: {
+      user: true,
+
+      payment: true,
+
+      items: {
+        include: {
+          variant: true,
+        },
+      },
+    },
+  });
+}
