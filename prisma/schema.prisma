@@ -203,3 +203,23 @@ model BillingProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Coupon {
+  id String @id @default(cuid())
+
+  code String @unique
+
+  discountType CouponDiscountType
+
+  value Decimal @db.Decimal(10,2)
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED
+}

@@ -54,6 +54,14 @@ export default function AdminLayout({
             <Users className="h-5 w-5" />
             Users
           </Link>
+
+          <Link
+            href="/admin/coupons"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition hover:bg-muted"
+          >
+            <Users className="h-5 w-5" />
+            Coupons
+          </Link>
         </nav>
       </aside>
 
