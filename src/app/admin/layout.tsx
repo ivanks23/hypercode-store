@@ -1,11 +1,6 @@
 import Link from "next/link";
 
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingBag,
-  Users,
-} from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -19,16 +14,11 @@ export default function AdminLayout({
       <aside className="border-r bg-white p-6">
         {/* LOGO */}
 
-        <Link
-          href="/admin"
-          className="text-3xl font-black tracking-tight"
-        >
+        <Link href="/admin" className="text-3xl font-black tracking-tight">
           HyperCode
         </Link>
 
-        <p className="mt-2 text-sm text-muted-foreground">
-          Admin Panel
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Admin Panel</p>
 
         {/* NAV */}
 
@@ -38,7 +28,6 @@ export default function AdminLayout({
             className="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition hover:bg-muted"
           >
             <LayoutDashboard className="h-5 w-5" />
-
             Dashboard
           </Link>
 
@@ -47,7 +36,6 @@ export default function AdminLayout({
             className="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition hover:bg-muted"
           >
             <Package className="h-5 w-5" />
-
             Products
           </Link>
 
@@ -56,7 +44,6 @@ export default function AdminLayout({
             className="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition hover:bg-muted"
           >
             <ShoppingBag className="h-5 w-5" />
-
             Orders
           </Link>
 
@@ -65,7 +52,6 @@ export default function AdminLayout({
             className="flex items-center gap-3 rounded-2xl px-4 py-3 font-medium transition hover:bg-muted"
           >
             <Users className="h-5 w-5" />
-
             Users
           </Link>
         </nav>
@@ -73,9 +59,7 @@ export default function AdminLayout({
 
       {/* CONTENT */}
 
-      <main className="bg-muted/30 p-8">
-        {children}
-      </main>
+      <main className="bg-muted/30 p-8">{children}</main>
     </div>
   );
 }
