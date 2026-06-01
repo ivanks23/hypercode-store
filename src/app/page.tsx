@@ -1,9 +1,6 @@
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-
 import { getProducts } from "@/services/product.service";
-
 import { ProductCard } from "@/components/products/ProductCard";
 
 export default async function HomePage() {

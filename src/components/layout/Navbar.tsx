@@ -42,13 +42,16 @@ export async function Navbar() {
 
             {session?.user ? (
               <div className="hidden items-center gap-3 md:flex">
-                <div className="flex items-center gap-2 rounded-full border bg-muted/40 px-4 py-2">
-                  <User2 className="h-4 w-4 text-violet-600" />
+                <Link
+  href="/account"
+  className="flex items-center gap-2 rounded-full border bg-muted/40 px-4 py-2 transition hover:bg-muted"
+>
+  <User2 className="h-4 w-4 text-violet-600" />
 
-                  <span className="max-w-[140px] truncate text-sm font-medium">
-                    {session.user.name}
-                  </span>
-                </div>
+  <span className="max-w-[140px] truncate text-sm font-medium">
+    {session.user.name}
+  </span>
+</Link>
 
                 <LogoutButton />
               </div>
