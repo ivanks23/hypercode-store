@@ -147,3 +147,14 @@ export async function deleteAddress(
     },
   });
 }
+
+export async function getDefaultAddress(
+  userId: string
+) {
+  return prisma.address.findFirst({
+    where: {
+      userId,
+      isDefault: true,
+    },
+  });
+}

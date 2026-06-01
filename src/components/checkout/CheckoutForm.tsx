@@ -1,6 +1,9 @@
 "use client";
 
-import { useTransition } from "react";
+import {
+  useEffect,
+  useTransition,
+} from "react";
 
 import {
   useForm,
@@ -17,7 +20,22 @@ import { useCartStore } from "@/store/cart.store";
 
 import { createOrderAction } from "@/actions/create-order";
 
-export function CheckoutForm() {
+
+type Props = {
+  defaultAddress: {
+    fullName: string;
+    phone: string;
+
+    street: string;
+
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  } | null;
+};
+
+export function CheckoutForm({ defaultAddress }: Props) {
   const items = useCartStore(
     (state) => state.items
   );
@@ -35,16 +53,31 @@ export function CheckoutForm() {
   const [isPending, startTransition] =
     useTransition();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CheckoutInput>({
-    resolver:
-      zodResolver(
-        checkoutSchema
-      ),
-  });
+const {
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors },
+} = useForm<CheckoutInput>({
+  resolver:
+    zodResolver(
+      checkoutSchema
+    ),
+});
+
+  useEffect(() => {
+    if (defaultAddress) {
+      reset({
+        fullName: defaultAddress.fullName,
+        phone: defaultAddress.phone,
+        street: defaultAddress.street,
+        city: defaultAddress.city,
+        state: defaultAddress.state,
+        zipCode: defaultAddress.zipCode,
+        country: defaultAddress.country,
+      });
+    }
+  }, [defaultAddress, reset]);
 
   function onSubmit(
     data: CheckoutInput
